@@ -7,16 +7,19 @@ import {
 	TextInput,
 	TouchableHighlight,
 	TouchableOpacity,
-	Modal
+	Modal,
+	ImageBackground,
+	Dimensions
 } from "react-native";
 import DomSelector from 'react-native-dom-parser';
 import Allergies from './Allergies.js';
 import AsyncStorage from '@react-native-community/async-storage';
+import Icon from "react-native-vector-icons/Ionicons";
 
 
 class HomeScreen extends React.Component {
 	static navigationOptions = {
-		title: 'Home',
+		header: null,
 	};
 	async readProduct(barcode) {
 		if (barcode.length > 0 && barcode != "Empty" && barcode != global_last_barcode) {
@@ -180,33 +183,29 @@ class HomeScreen extends React.Component {
 	render() {
 		const { navigate } = this.props.navigation;
 		let { allergy, barcode, sub_title, title, text, price } = this.state;
+		const infoText = "Pressing the camera picture on top of this text takes you to product barcode reader. Pressing the buttons below will take you to product details and allergies selection.";
 		// console.log(global_barcode);
 		// console.log(this.state.barcode);
 		return (
-			<View style={styles.container}>
-				<View style={{ margin: 10, alignItems: 'center' }}>
-					<TouchableHighlight style={styles.button} onPress={() => navigate('Camera')}>
-						<Text>Open Camera</Text>
-					</TouchableHighlight>
+			<View style={{flex: 1}}>
+				<ImageBackground source={require('../images/old_road.jpg')} resizeMode='cover' blurRadius={10} style={styles.containerTop}>
+					<TouchableOpacity style={styles.cameraView} onPress={() => navigate('Camera')}>
+						<Icon name="md-camera" color="white" size={70} />
+					</TouchableOpacity>
+				</ImageBackground>
+				<View style={styles.containerMid}>
+					<Text style={{color: '#53452d', fontSize: 13, textAlign: 'center'}}>{infoText}</Text>
 				</View>
-				<View style={{ margin: 10, alignItems: 'center' }}>
-					<TouchableOpacity style={styles.button} onPress={() => navigate('Allergies')}>
-						<Text>Select allergies</Text>
+				<View style={styles.containerBot}>
+					<TouchableOpacity style={styles.bottomButton} onPress={() => this.setModalVisible(true)}>
+						<Icon name="md-list" color="#53452d" size={50} />
+						<Text style={{color: '#53452d', fontSize: 13, textAlign: 'center', paddingTop: 5}}>Product Details</Text>
+					</TouchableOpacity>
+					<TouchableOpacity style={styles.bottomButton} onPress={() => navigate('Allergies')}>
+						<Icon name="md-nutrition" color="#53452d" size={50} />
+						<Text style={{color: '#53452d', fontSize: 13, textAlign: 'center', paddingTop: 5}}>Select Allergies</Text>
 					</TouchableOpacity>
 				</View>
-				<Text style={styles.sub_title}>{sub_title}</Text>
-				{/* <View style={styles.hr} />
-				<Text style={styles.title}>{title}</Text>
-				<Text>{text}</Text>
-				<Text style={styles.price}>{price}</Text>
-				<Text style={styles.barcode}>{barcode}</Text>
-				<Text style={styles.allergy}>{allergy}</Text> */}
-				<TouchableHighlight style={styles.button} onPress={() => this.setModalVisible(true)}>
-					<Text>Open Product Details</Text>
-				</TouchableHighlight>
-				{/* <TextInput type="text" value={allergy} onChange={this._changeAllergy} /> */}
-				{/* <Text>Allergy: {allergy}</Text> */}
-				{/* <View style={{ marginTop: 22 }}> */}
 				<Modal
 					animationType="slide"
 					transparent={false}
@@ -233,7 +232,7 @@ class HomeScreen extends React.Component {
 					</View>
 				</Modal>
 			</View>
-		);
+			);
 	}
 	async readUrl(barcode) {
 		try {
@@ -250,12 +249,48 @@ class HomeScreen extends React.Component {
 export default HomeScreen;
 
 const styles = StyleSheet.create({
-	container: {
-		flex: 1,
-		padding: 10
+	containerTop: {
+		flex: 0.5,
+		backgroundColor: "red",
+		justifyContent: 'center',
+		alignItems: 'center',
 	},
-	center: {
-		alignItems: 'center'
+	containerMid: {
+		flex: 0.20,
+		backgroundColor: "#e8e4da",
+		alignItems: 'center',
+		justifyContent: 'center',
+		paddingHorizontal: 15,
+		borderBottomWidth: 3,
+		borderBottomColor:'#c4c4c4',
+		borderTopWidth: 3,
+		borderTopColor:'#c4c4c4'
+	},
+	containerBot: {
+		flex: 0.30,
+		backgroundColor: "#ffffff",
+		justifyContent:'space-between',
+		alignItems: 'center',
+		flexDirection: 'row',
+		paddingHorizontal: 20
+	},
+	cameraView: {
+		width: 150,
+		height: 150,
+		borderRadius: 150 / 2,
+		borderColor: "white",
+		borderWidth: 2,
+		alignItems: 'center',
+		justifyContent:'center'
+	},
+	bottomButton: {
+		width: Dimensions.get('window').width / 2.5,
+		height: '70%',
+		justifyContent: 'center',
+		alignItems: 'center',
+		borderColor: '#a8998d',
+		borderWidth: 2,
+		borderRadius: 10
 	},
 	hr: {
 		borderBottomColor: 'black',
