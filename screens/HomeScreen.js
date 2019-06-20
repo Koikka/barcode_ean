@@ -16,7 +16,6 @@ import Allergies from './Allergies.js';
 import AsyncStorage from '@react-native-community/async-storage';
 import Icon from "react-native-vector-icons/Ionicons";
 
-
 class HomeScreen extends React.Component {
 	static navigationOptions = {
 		header: null,
@@ -184,13 +183,16 @@ class HomeScreen extends React.Component {
 		const { navigate } = this.props.navigation;
 		let { allergy, barcode, sub_title, title, text, price } = this.state;
 		const infoText = "Pressing the camera picture on top of this text takes you to product barcode reader. Pressing the buttons below will take you to product details and allergies selection.";
+		const textColor = '#53452d';
+		const containerMidColor = '#e8e4da';
+		const containerBotColor = '#ffffff';
 		// console.log(global_barcode);
 		// console.log(this.state.barcode);
 		return (
 			<View style={{flex: 1}}>
 				<ImageBackground source={require('../images/old_road.jpg')} resizeMode='cover' blurRadius={10} style={styles.containerTop}>
 					<TouchableOpacity style={styles.cameraView} onPress={() => navigate('Camera')}>
-						<Icon name="md-camera" color="white" size={70} />
+						<Icon name="md-camera" color="#ffffff" size={70} />
 					</TouchableOpacity>
 				</ImageBackground>
 				<View style={styles.containerMid}>
@@ -251,7 +253,7 @@ export default HomeScreen;
 const styles = StyleSheet.create({
 	containerTop: {
 		flex: 0.5,
-		backgroundColor: "red",
+		backgroundColor: "#e8e4da",
 		justifyContent: 'center',
 		alignItems: 'center',
 	},
@@ -278,7 +280,7 @@ const styles = StyleSheet.create({
 		width: 150,
 		height: 150,
 		borderRadius: 150 / 2,
-		borderColor: "white",
+		borderColor: "#ffffff",
 		borderWidth: 2,
 		alignItems: 'center',
 		justifyContent:'center'
