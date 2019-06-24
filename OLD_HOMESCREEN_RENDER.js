@@ -67,3 +67,29 @@ render() {
 		}
 	}
 }
+
+Modal
+					animationType="slide"
+					transparent={false}
+					visible={this.state.modalVisible}
+					onRequestClose={() => {
+						Alert.alert('Modal has been closed.');
+					}}>
+					<View style={{ marginTop: 22 }}>
+						<View style={{ margin: 10 }}>
+							<Text style={styles.sub_title}>{sub_title}</Text>
+							<Text style={styles.title}>{title}</Text>
+							<Text>{text}</Text>
+							<Text style={styles.price}>{price}</Text>
+							<View style={styles.hr} />
+							<Text style={styles.barcode}>{barcode}</Text>
+							<View style={styles.hr} />
+							<Text style={styles.allergy}>{allergy}</Text>
+							<View style={styles.center}>
+								<TouchableOpacity style={styles.button} onPress={() => { this.setModalVisible(!this.state.modalVisible); }}>
+									<Text>Close this</Text>
+								</TouchableOpacity>
+							</View>
+						</View>
+					</View>
+				</Modal>

@@ -210,7 +210,8 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     borderColor: "#a8998d",
     borderWidth: 2,
-    borderRadius: 10
+    borderRadius: 10,
+    backgroundColor: "#ffffff"
   },
   container: {
     flex: 1,

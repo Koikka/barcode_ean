@@ -9,12 +9,15 @@ import {
 	TouchableOpacity,
 	Modal,
 	ImageBackground,
-	Dimensions
+	Dimensions,
+	Alert,
+	ScrollView
 } from "react-native";
 import DomSelector from 'react-native-dom-parser';
 import Allergies from './Allergies.js';
 import AsyncStorage from '@react-native-community/async-storage';
 import Icon from "react-native-vector-icons/Ionicons";
+import Icon2 from 'react-native-vector-icons/dist/FontAwesome5';
 
 class HomeScreen extends React.Component {
 	static navigationOptions = {
@@ -182,17 +185,19 @@ class HomeScreen extends React.Component {
 	render() {
 		const { navigate } = this.props.navigation;
 		let { allergy, barcode, sub_title, title, text, price } = this.state;
+		const instructions = "Looks like you haven't scanned any product barcodes yet!\n\nTo fix this situation, you have to go back one step, read the instructions on the main menu and try again. "
 		const infoText = "Pressing the camera picture on top of this text takes you to product barcode reader. Pressing the buttons below will take you to product details and allergies selection.";
 		const textColor = '#53452d';
 		const containerMidColor = '#e8e4da';
 		const containerBotColor = '#ffffff';
+		let bool = false;
 		// console.log(global_barcode);
 		// console.log(this.state.barcode);
 		return (
 			<View style={{flex: 1}}>
 				<ImageBackground source={require('../images/old_road.jpg')} resizeMode='cover' blurRadius={10} style={styles.containerTop}>
 					<TouchableOpacity style={styles.cameraView} onPress={() => navigate('Camera')}>
-						<Icon name="md-camera" color="#ffffff" size={70} />
+						<Icon2 name="camera" color="#ffffff" size={70} />
 					</TouchableOpacity>
 				</ImageBackground>
 				<View style={styles.containerMid}>
@@ -213,24 +218,109 @@ class HomeScreen extends React.Component {
 					transparent={false}
 					visible={this.state.modalVisible}
 					onRequestClose={() => {
-						Alert.alert('Modal has been closed.');
+						this.setModalVisible(!this.state.modalVisible);
 					}}>
-					<View style={{ marginTop: 22 }}>
-						<View style={{ margin: 10 }}>
-							<Text style={styles.sub_title}>{sub_title}</Text>
-							<Text style={styles.title}>{title}</Text>
-							<Text>{text}</Text>
-							<Text style={styles.price}>{price}</Text>
-							<View style={styles.hr} />
-							<Text style={styles.barcode}>{barcode}</Text>
-							<View style={styles.hr} />
-							<Text style={styles.allergy}>{allergy}</Text>
-							<View style={styles.center}>
-								<TouchableOpacity style={styles.button} onPress={() => { this.setModalVisible(!this.state.modalVisible); }}>
-									<Text>Close this</Text>
-								</TouchableOpacity>
+					<View style={styles.infoContainerMaster}>
+							{title != "" ? 
+							<View style={styles.infoContainerMaster}>
+								<ImageBackground source={require('../images/old_road.jpg')} resizeMode='cover' blurRadius={10} style={styles.prodinfoTop}>
+										<Icon2 name="tag" color="#ffffff" size={70} />
+								</ImageBackground>
+								<ScrollView style={styles.prodinfoMid}>
+									<View>
+										<View style={{ margin: 2}}>
+										<Text style={styles.sub_title}>{sub_title}</Text>
+										<Text style={styles.title}>{title}</Text>
+										<View style={{flexDirection: 'row', paddingTop: 5, paddingBottom: 5}}>
+											<Icon2 name="bread-slice" color="#53452d" size={20} style={{paddingHorizontal: 5}}/>
+											<Icon2 name="blender" color="#53452d" size={20} style={{paddingHorizontal: 5}}/>
+											<Icon2 name="cheese" color="#53452d" size={20} style={{paddingHorizontal: 5}}/>
+											<Text style={{color: "#53452d", fontSize: 15, fontWeight: 'bold', paddingTop: 5, paddingHorizontal: 5}} onPress={() => console.log('Open up a screen with information...')}>...read more</Text>
+										</View>
+										<Text style={{color: "#53452d", fontSize: 15, fontWeight: 'bold', paddingBottom: 2}}>Ingredients:</Text>
+										<Text style={{paddingBottom: 10}}>{text}</Text>
+										<Text style={{color: "#53452d", fontSize: 15, fontWeight: 'bold', paddingBottom: 2}}>Price:</Text>
+										<Text style={styles.price}>{price}</Text>
+										<Text style={styles.allergy}>{allergy}</Text>
+										</View>
+										<View>
+											<View style={styles.hr} />
+											<Text style={styles.barcode}>{"Barcode: " + barcode}</Text>
+											<View style={styles.hr} />
+										</View>
+									</View>
+								</ScrollView>
+								<View style={styles.prodinfoBot}>
+									<TouchableOpacity
+										style={styles.modalBottomButton}
+										onPress={() => { this.setModalVisible(!this.state.modalVisible); }}
+										>
+										<Icon name="md-thumbs-up" color="#53452d" size={30} />
+										<Text
+											style={{
+											color: "#53452d",
+											fontSize: 17,
+											fontWeight: "bold",
+											textAlign: "center",
+											paddingTop: 5,
+											paddingHorizontal: 5
+											}}
+										>
+											Cool!
+										</Text>
+										</TouchableOpacity>
+								</View>
 							</View>
-						</View>
+							:
+							<View style={styles.infoContainerMaster}>
+								<View style={styles.infoContainerTop}>
+									<Icon2 name="box-open" color="#53452d" size={120} />
+								</View>
+								<View style={styles.infoContainerMid}>
+									<Text style={{color: "#53452d",
+										fontSize: 35,
+										fontWeight: "bold",
+										textAlign: "center",
+										paddingBottom: 30,
+									}}
+									>
+										UH OH!
+									</Text>
+									<Text
+									style={{
+										color: "#53452d",
+										fontSize: 15,
+										fontWeight: "100",
+										textAlign: "center",
+										paddingTop: 5,
+										lineHeight: 20
+									}}
+									>
+									{instructions}
+									</Text>
+								</View>
+								<View style={styles.infoContainerBot}>
+									<TouchableOpacity
+									style={styles.modalBottomButton}
+									onPress={() => { this.setModalVisible(!this.state.modalVisible); }}
+									>
+									<Icon name="md-thumbs-up" color="#53452d" size={30} />
+									<Text
+										style={{
+										color: "#53452d",
+										fontSize: 17,
+										fontWeight: "bold",
+										textAlign: "center",
+										paddingTop: 5,
+										paddingHorizontal: 5
+										}}
+									>
+										Allright
+									</Text>
+									</TouchableOpacity>
+								</View>
+							</View>
+							}
 					</View>
 				</Modal>
 			</View>
@@ -294,18 +384,65 @@ const styles = StyleSheet.create({
 		borderWidth: 2,
 		borderRadius: 10
 	},
+	modalBottomButton: {
+		width: Dimensions.get("window").width * 0.5,
+		height: "80%",
+		justifyContent: "center",
+		alignItems: "center",
+		paddingHorizontal: 10,
+		flexDirection: "row",
+		borderColor: "#a8998d",
+		borderWidth: 2,
+		borderRadius: 10,
+		backgroundColor: '#ffffff'
+	  },
+	infoContainerMaster: {
+		flex: 1,
+		backgroundColor: "#e8e4da"
+	  },
+	infoContainerTop: {
+		flex: 0.25,
+		justifyContent: "center",
+		alignItems: "center",
+		paddingTop: 20
+	  },
+	infoContainerMid: {
+		flex: 0.45,
+		alignItems: "center",
+		justifyContent: "flex-start",
+		paddingTop: 15,
+		paddingHorizontal: 10
+	  },
+	infoContainerBot: {
+		flex: 0.3,
+		justifyContent: "center",
+		alignItems: "center",
+		flexDirection: "row",
+		paddingHorizontal: 20,
+		paddingTop: 10
+	  },
+	prodinfoTop: {
+		flex: 0.25,
+		backgroundColor: "#e8e4da",
+		alignItems: 'center',
+		justifyContent: 'center'
+	  },
+	prodinfoMid: {
+		flex: 0.65,
+		justifyContent: 'space-between',
+		backgroundColor: '#e8e4da',
+		borderTopWidth: 3,
+		borderTopColor:'#c4c4c4'
+	  },
+	prodinfoBot: {
+		flex: 0.1,
+		backgroundColor: '#e8e4da',
+		alignItems: 'center',
+		justifyContent: 'center'
+	  },
 	hr: {
 		borderBottomColor: 'black',
 		borderBottomWidth: 1
-	},
-	button: {
-		margin: 10,
-		alignItems: 'center',
-		backgroundColor: '#DDDDDD',
-		padding: 10,
-		height: 40,
-		width: 160,
-		borderRadius: 10
 	},
 	sub_title: {
 		fontWeight: 'bold',
@@ -314,7 +451,8 @@ const styles = StyleSheet.create({
 	},
 	title: {
 		fontWeight: 'bold',
-		fontSize: 18
+		fontSize: 18,
+		paddingBottom: 10
 	},
 	barcode: {
 		fontSize: 12
