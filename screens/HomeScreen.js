@@ -12,7 +12,8 @@ import {
 	Dimensions,
 	Alert,
 	ScrollView,
-	Linking
+	Linking,
+	Image
 } from "react-native";
 import DomSelector from 'react-native-dom-parser';
 import Allergies from './Allergies.js';
@@ -66,6 +67,24 @@ class HomeScreen extends React.Component {
 					} catch (error) {
 						console.log(error);
 						all_text = '';
+					}
+					try {
+						// https://foodieimages.s3.amazonaws.com/images/entries/320x480/6413600002154_0.png
+						let url_to_img = 'https://foodieimages.s3.amazonaws.com/images/entries/320x480/'+barcode+'_0.png';
+						// let temp_img_url = Image.prefetch(url_to_img);
+						// console.log(temp_img_url);
+						var response_im = Image.prefetch(url_to_img,()=>console.log('Image is being fetched'));
+						console.log(response_im);
+						this.setState({img_width: 320});
+						this.setState({img_height: 480});
+						this.setState({ img_url: url_to_img });
+						// Image.getSize(url_to_img, (width, height)=>{this.setState({img_width, img_height})}, console.log('fail'));
+					} catch (error) {
+						console.log(error);
+						let url_to_img = 'https://foodieimages.s3.amazonaws.com/images/entries/320x480/'+barcode+'_0.png';
+						this.setState({ img_url: url_to_img });
+						this.setState({img_width: 320});
+						this.setState({img_height: 480});
 					}
 					// console.log(rootNode.getElementById('js-pricebox').getElementsByClassName('whole-number')[0].firstChild.text+","+rootNode.getElementById('js-pricebox').getElementsByClassName('decimal')[0].firstChild.text);
 					//const text = this.char_replace(ingredients.firstChild.text);
@@ -149,10 +168,14 @@ class HomeScreen extends React.Component {
 			text: global_text,
 			price: "",
 			modalVisible: false,
-			didUpdate: false
+			didUpdate: false,
+			img_url: '',
+			img_width: 0,
+			img_height: 0
 		};
 	}
 	setModalVisible(visible) {
+		console.log(visible);
 		this.setState({ modalVisible: visible });
 	}
 	componentDidMount() {
@@ -191,7 +214,7 @@ class HomeScreen extends React.Component {
 	}
 	componentDidUpdate() {
 		if (!this.didUpdate) {
-			console.log('componentDidUpdate: '+global_barcode);
+			console.log('componentDidUpdate: ' + global_barcode);
 			this.readProduct(global_barcode);
 		}
 	}
@@ -204,7 +227,7 @@ class HomeScreen extends React.Component {
 		Linking.canOpenURL(food_url)
 			.then((supported) => {
 				if (!supported) {
-				console.log("Can't handle url: " + food_url);
+					console.log("Can't handle url: " + food_url);
 				} else {
 					return Linking.openURL(food_url);
 				}
@@ -224,23 +247,23 @@ class HomeScreen extends React.Component {
 		// console.log(global_barcode);
 		// console.log(this.state.barcode);
 		return (
-			<View style={{flex: 1}}>
+			<View style={{ flex: 1 }}>
 				<ImageBackground source={require('../images/old_road.jpg')} resizeMode='cover' blurRadius={10} style={styles.containerTop}>
 					<TouchableOpacity style={styles.cameraView} onPress={() => navigate('Camera')}>
 						<Icon2 name="camera" color="#ffffff" size={70} />
 					</TouchableOpacity>
 				</ImageBackground>
 				<View style={styles.containerMid}>
-					<Text style={{color: '#53452d', fontSize: 13, textAlign: 'center'}}>{infoText}</Text>
+					<Text style={{ color: '#53452d', fontSize: 13, textAlign: 'center' }}>{infoText}</Text>
 				</View>
 				<View style={styles.containerBot}>
 					<TouchableOpacity style={styles.bottomButton} onPress={() => this.setModalVisible(true)}>
 						<Icon name="md-list" color="#53452d" size={50} />
-						<Text style={{color: '#53452d', fontSize: 13, textAlign: 'center', paddingTop: 5}}>Product Details</Text>
+						<Text style={{ color: '#53452d', fontSize: 13, textAlign: 'center', paddingTop: 5 }}>Product Details</Text>
 					</TouchableOpacity>
 					<TouchableOpacity style={styles.bottomButton} onPress={() => navigate('Allergies')}>
 						<Icon name="md-nutrition" color="#53452d" size={50} />
-						<Text style={{color: '#53452d', fontSize: 13, textAlign: 'center', paddingTop: 5}}>Select Allergies</Text>
+						<Text style={{ color: '#53452d', fontSize: 13, textAlign: 'center', paddingTop: 5 }}>Select Allergies</Text>
 					</TouchableOpacity>
 				</View>
 				<Modal
@@ -251,32 +274,36 @@ class HomeScreen extends React.Component {
 						this.setModalVisible(!this.state.modalVisible);
 					}}>
 					<View style={styles.infoContainerMaster}>
-							{title != "" ? 
+						{title != "" ?
 							<View style={styles.infoContainerMaster}>
-								<ImageBackground source={require('../images/old_road.jpg')} resizeMode='cover' blurRadius={10} style={styles.prodinfoTop}>
-										<Icon2 name="tag" color="#ffffff" size={70} />
+								{/* <ImageBackground source={require('../images/old_road.jpg')} resizeMode='cover' blurRadius={10} style={styles.prodinfoTop}> */}
+								<ImageBackground source={{uri: this.state.img_url}} resizeMode='cover' blurRadius={1} style={styles.prodinfoTop}>	
+									<Icon2 name="tag" color="#ffffff" size={70} />
 								</ImageBackground>
 								<ScrollView style={styles.prodinfoMid}>
 									<View>
-										<View style={{ margin: 2}}>
-										<Text style={styles.sub_title}>{sub_title}</Text>
-										<Text style={styles.title}>{title}</Text>
-										<View style={{flexDirection: 'row', paddingTop: 5, paddingBottom: 5}}>
-											<Icon2 name="bread-slice" color="#53452d" size={20} style={{paddingHorizontal: 5}}/>
-											<Icon2 name="blender" color="#53452d" size={20} style={{paddingHorizontal: 5}}/>
-											<Icon2 name="cheese" color="#53452d" size={20} style={{paddingHorizontal: 5}}/>
-											<Text style={{color: "#53452d", fontSize: 15, fontWeight: 'bold', paddingTop: 5, paddingHorizontal: 5}} onPress={() => this.openUrl()}>...read more</Text>
+										<View style={{ margin: 2 }}>
+											<Text style={styles.sub_title}>{sub_title}</Text>
+											<Text style={styles.title}>{title}</Text>
+											<View style={{ flexDirection: 'row', paddingTop: 5, paddingBottom: 5 }}>
+												<Icon2 name="bread-slice" color="#53452d" size={20} style={{ paddingHorizontal: 5 }} />
+												<Icon2 name="blender" color="#53452d" size={20} style={{ paddingHorizontal: 5 }} />
+												<Icon2 name="cheese" color="#53452d" size={20} style={{ paddingHorizontal: 5 }} />
+												<Text style={{ color: "#53452d", fontSize: 15, fontWeight: 'bold', paddingTop: 5, paddingHorizontal: 5 }} onPress={() => this.openUrl()}>...read more</Text>
+											</View>
+											<Text style={{ color: "#53452d", fontSize: 15, fontWeight: 'bold', paddingBottom: 2 }}>Ingredients:</Text>
+											<Text style={{ paddingBottom: 10 }}>{text}</Text>
+											<Text style={{ color: "#53452d", fontSize: 15, fontWeight: 'bold', paddingBottom: 2 }}>Price:</Text>
+											<Text style={styles.price}>{price}</Text>
+											<Text style={styles.allergy}>{allergy}</Text>
 										</View>
-										<Text style={{color: "#53452d", fontSize: 15, fontWeight: 'bold', paddingBottom: 2}}>Ingredients:</Text>
-										<Text style={{paddingBottom: 10}}>{text}</Text>
-										<Text style={{color: "#53452d", fontSize: 15, fontWeight: 'bold', paddingBottom: 2}}>Price:</Text>
-										<Text style={styles.price}>{price}</Text>
-										<Text style={styles.allergy}>{allergy}</Text>
+										<View style={styles.img_container}>
+											{/* <Image style={styles.img} source={{uri: this.state.img_url}}/> */}
+											<Image style={{width: this.state.img_width, height: this.state.img_height}} source={{uri: this.state.img_url}}/>
 										</View>
 										<View>
 											<View style={styles.hr} />
 											<Text style={styles.barcode}>{"Barcode: " + barcode}</Text>
-											<View style={styles.hr} />
 										</View>
 									</View>
 								</ScrollView>
@@ -284,21 +311,21 @@ class HomeScreen extends React.Component {
 									<TouchableOpacity
 										style={styles.modalBottomButton}
 										onPress={() => { this.setModalVisible(!this.state.modalVisible); }}
-										>
+									>
 										<Icon name="md-thumbs-up" color="#53452d" size={30} />
 										<Text
 											style={{
-											color: "#53452d",
-											fontSize: 17,
-											fontWeight: "bold",
-											textAlign: "center",
-											paddingTop: 5,
-											paddingHorizontal: 5
+												color: "#53452d",
+												fontSize: 17,
+												fontWeight: "bold",
+												textAlign: "center",
+												paddingTop: 5,
+												paddingHorizontal: 5
 											}}
 										>
 											Cool!
 										</Text>
-										</TouchableOpacity>
+									</TouchableOpacity>
 								</View>
 							</View>
 							:
@@ -307,7 +334,8 @@ class HomeScreen extends React.Component {
 									<Icon2 name="box-open" color="#53452d" size={120} />
 								</View>
 								<View style={styles.infoContainerMid}>
-									<Text style={{color: "#53452d",
+									<Text style={{
+										color: "#53452d",
 										fontSize: 35,
 										fontWeight: "bold",
 										textAlign: "center",
@@ -317,44 +345,44 @@ class HomeScreen extends React.Component {
 										UH OH!
 									</Text>
 									<Text
-									style={{
-										color: "#53452d",
-										fontSize: 15,
-										fontWeight: "100",
-										textAlign: "center",
-										paddingTop: 5,
-										lineHeight: 20
-									}}
+										style={{
+											color: "#53452d",
+											fontSize: 15,
+											fontWeight: "100",
+											textAlign: "center",
+											paddingTop: 5,
+											lineHeight: 20
+										}}
 									>
-									{instructions}
+										{instructions}
 									</Text>
 								</View>
 								<View style={styles.infoContainerBot}>
 									<TouchableOpacity
-									style={styles.modalBottomButton}
-									onPress={() => { this.setModalVisible(!this.state.modalVisible); }}
+										style={styles.modalBottomButton}
+										onPress={() => { this.setModalVisible(!this.state.modalVisible); }}
 									>
-									<Icon name="md-thumbs-up" color="#53452d" size={30} />
-									<Text
-										style={{
-										color: "#53452d",
-										fontSize: 17,
-										fontWeight: "bold",
-										textAlign: "center",
-										paddingTop: 5,
-										paddingHorizontal: 5
-										}}
-									>
-										Allright
+										<Icon name="md-thumbs-up" color="#53452d" size={30} />
+										<Text
+											style={{
+												color: "#53452d",
+												fontSize: 17,
+												fontWeight: "bold",
+												textAlign: "center",
+												paddingTop: 5,
+												paddingHorizontal: 5
+											}}
+										>
+											Allright
 									</Text>
 									</TouchableOpacity>
 								</View>
 							</View>
-							}
+						}
 					</View>
 				</Modal>
 			</View>
-			);
+		);
 	}
 	async readUrl(barcode) {
 		try {
@@ -384,14 +412,14 @@ const styles = StyleSheet.create({
 		justifyContent: 'center',
 		paddingHorizontal: 15,
 		borderBottomWidth: 3,
-		borderBottomColor:'#c4c4c4',
+		borderBottomColor: '#c4c4c4',
 		borderTopWidth: 3,
-		borderTopColor:'#c4c4c4'
+		borderTopColor: '#c4c4c4'
 	},
 	containerBot: {
 		flex: 0.30,
 		backgroundColor: "#ffffff",
-		justifyContent:'space-between',
+		justifyContent: 'space-between',
 		alignItems: 'center',
 		flexDirection: 'row',
 		paddingHorizontal: 20
@@ -403,7 +431,7 @@ const styles = StyleSheet.create({
 		borderColor: "#ffffff",
 		borderWidth: 2,
 		alignItems: 'center',
-		justifyContent:'center'
+		justifyContent: 'center'
 	},
 	bottomButton: {
 		width: Dimensions.get('window').width / 2.5,
@@ -425,24 +453,24 @@ const styles = StyleSheet.create({
 		borderWidth: 2,
 		borderRadius: 10,
 		backgroundColor: '#ffffff'
-	  },
+	},
 	infoContainerMaster: {
 		flex: 1,
 		backgroundColor: "#e8e4da"
-	  },
+	},
 	infoContainerTop: {
 		flex: 0.25,
 		justifyContent: "center",
 		alignItems: "center",
 		paddingTop: 20
-	  },
+	},
 	infoContainerMid: {
 		flex: 0.45,
 		alignItems: "center",
 		justifyContent: "flex-start",
 		paddingTop: 15,
 		paddingHorizontal: 10
-	  },
+	},
 	infoContainerBot: {
 		flex: 0.3,
 		justifyContent: "center",
@@ -450,26 +478,26 @@ const styles = StyleSheet.create({
 		flexDirection: "row",
 		paddingHorizontal: 20,
 		paddingTop: 10
-	  },
+	},
 	prodinfoTop: {
 		flex: 0.25,
 		backgroundColor: "#e8e4da",
 		alignItems: 'center',
 		justifyContent: 'center'
-	  },
+	},
 	prodinfoMid: {
 		flex: 0.65,
 		// justifyContent: 'space-between',
 		backgroundColor: '#e8e4da',
 		borderTopWidth: 3,
-		borderTopColor:'#c4c4c4'
-	  },
+		borderTopColor: '#c4c4c4'
+	},
 	prodinfoBot: {
 		flex: 0.1,
 		backgroundColor: '#e8e4da',
 		alignItems: 'center',
 		justifyContent: 'center'
-	  },
+	},
 	hr: {
 		borderBottomColor: 'black',
 		borderBottomWidth: 1
@@ -495,5 +523,15 @@ const styles = StyleSheet.create({
 	price: {
 		fontWeight: 'bold',
 		fontSize: 20
+	},
+	img_container: {
+		justifyContent: 'center',
+		alignItems: 'center'
+	},
+	img: {
+		justifyContent: 'center',
+		alignItems: 'center',
+		width: 320,
+		height: 480
 	}
 });
