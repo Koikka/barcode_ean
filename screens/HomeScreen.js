@@ -11,7 +11,8 @@ import {
 	ImageBackground,
 	Dimensions,
 	Alert,
-	ScrollView
+	ScrollView,
+	Linking
 } from "react-native";
 import DomSelector from 'react-native-dom-parser';
 import Allergies from './Allergies.js';
@@ -24,6 +25,7 @@ class HomeScreen extends React.Component {
 		header: null,
 	};
 	async readProduct(barcode) {
+		this.didUpdate = true;
 		if (barcode.length > 0 && barcode != "Empty" && barcode != global_last_barcode) {
 			try {
 				const response = await fetch('https://www.foodie.fi/entry/' + barcode);
@@ -40,21 +42,33 @@ class HomeScreen extends React.Component {
 					console.log(error);
 				}
 				if (title.length > 0) {
-					const sub_title = this.char_replace(product_subname.firstChild.text);
-					// console.log(ingredients);
-					const all_text_elems = ingredients.children;
-					let all_text = "";
-					for (let index = 0; index < all_text_elems.length; index++) {
-						try {
-							all_text += all_text_elems[index].firstChild.text;
-						} catch (error) {
-							all_text += all_text_elems[index].text;
-						}
-						// all_text += all_text_elems[index].text;
+					let sub_title = 'Empty';
+					try {
+						sub_title = this.char_replace(product_subname.firstChild.text);
+					} catch (error) {
+						console.log(error);
 					}
-					all_text = this.char_replace(all_text);
+					console.log(ingredients);
+					var all_text_elems = '';
+					var all_text = '';
+					try {
+						all_text_elems = ingredients.children;
+						for (let index = 0; index < all_text_elems.length; index++) {
+							try {
+								all_text += all_text_elems[index].firstChild.text;
+							} catch (error) {
+								all_text += all_text_elems[index].text;
+							}
+							// all_text += all_text_elems[index].text;
+						}
+						console.log(all_text);
+						all_text = this.char_replace(all_text);
+					} catch (error) {
+						console.log(error);
+						all_text = '';
+					}
 					// console.log(rootNode.getElementById('js-pricebox').getElementsByClassName('whole-number')[0].firstChild.text+","+rootNode.getElementById('js-pricebox').getElementsByClassName('decimal')[0].firstChild.text);
-					const text = this.char_replace(ingredients.firstChild.text);
+					//const text = this.char_replace(ingredients.firstChild.text);
 					// console.log(this.char_replace(ingredients.firstChild.text));
 					let allergy = "";
 					if (typeof global_allergies !== 'undefined') {
@@ -80,13 +94,13 @@ class HomeScreen extends React.Component {
 				// this.check_food_content(sub_title + " " + title + " " + text);
 				// alert(responseJson);
 				global_last_barcode = barcode;
-			}
-			catch (error) {
+			} catch (error) {
 				console.error(error);
 			}
 		} else {
 			//alert('not valid barcode');
 		}
+		this.didUpdate = false;
 	}
 	char_replace(str) {
 		let unicode_char = ["&#32;", "&#33;", "&#34;", "&#35;", "&#36;", "&#37;", "&#38;", "&#39;", "&#40;", "&#41;", "&#42;", "&#43;", "&#44;", "&#45;", "&#46;", "&#47;", "&#48;", "&#49;", "&#50;", "&#51;", "&#52;", "&#53;", "&#54;", "&#55;", "&#56;", "&#57;", "&#58;", "&#59;", "&#60;", "&#61;", "&#62;", "&#63;", "&#64;", "&#65;", "&#66;", "&#67;", "&#68;", "&#69;", "&#70;", "&#71;", "&#72;", "&#73;", "&#74;", "&#75;", "&#76;", "&#77;", "&#78;", "&#79;", "&#80;", "&#81;", "&#82;", "&#83;", "&#84;", "&#85;", "&#86;", "&#87;", "&#88;", "&#89;", "&#90;", "&#91;", "&#92;", "&#93;", "&#94;", "&#95;", "&#96;", "&#97;", "&#98;", "&#99;", "&#100;", "&#101;", "&#102;", "&#103;", "&#104;", "&#105;", "&#106;", "&#107;", "&#108;", "&#109;", "&#110;", "&#111;", "&#112;", "&#113;", "&#114;", "&#115;", "&#116;", "&#117;", "&#118;", "&#119;", "&#120;", "&#121;", "&#122;", "&#123;", "&#124;", "&#125;", "&#126;", "&#160;", "&#161;", "&#162;", "&#163;", "&#164;", "&#165;", "&#166;", "&#167;", "&#168;", "&#169;", "&#170;", "&#171;", "&#172;", "&#173;", "&#174;", "&#175;", "&#176;", "&#177;", "&#178;", "&#179;", "&#180;", "&#181;", "&#182;", "&#183;", "&#184;", "&#185;", "&#186;", "&#187;", "&#188;", "&#189;", "&#190;", "&#191;", "&#192;", "&#193;", "&#194;", "&#195;", "&#196;", "&#197;", "&#198;", "&#199;", "&#200;", "&#201;", "&#202;", "&#203;", "&#204;", "&#205;", "&#206;", "&#207;", "&#208;", "&#209;", "&#210;", "&#211;", "&#212;", "&#213;", "&#214;", "&#215;", "&#216;", "&#217;", "&#218;", "&#219;", "&#220;", "&#221;", "&#222;", "&#223;", "&#224;", "&#225;", "&#226;", "&#227;", "&#228;", "&#229;", "&#230;", "&#231;", "&#232;", "&#233;", "&#234;", "&#235;", "&#236;", "&#237;", "&#238;", "&#239;", "&#240;", "&#241;", "&#242;", "&#243;", "&#244;", "&#245;", "&#246;", "&#247;", "&#248;", "&#249;", "&#250;", "&#251;", "&#252;", "&#253;", "&#254;", "&#255;"];
@@ -134,7 +148,8 @@ class HomeScreen extends React.Component {
 			title: global_title,
 			text: global_text,
 			price: "",
-			modalVisible: false
+			modalVisible: false,
+			didUpdate: false
 		};
 	}
 	setModalVisible(visible) {
@@ -175,11 +190,26 @@ class HomeScreen extends React.Component {
 		this.focusListener.remove();
 	}
 	componentDidUpdate() {
-		console.log(global_barcode);
-		this.readProduct(global_barcode);
+		if (!this.didUpdate) {
+			console.log('componentDidUpdate: '+global_barcode);
+			this.readProduct(global_barcode);
+		}
 	}
 	_changeAllergy = (e) => {
 		this.setState({ allergy: e.target.value });
+	}
+	openUrl() {
+		let food_url = 'https://www.foodie.fi/entry/' + global_barcode;
+		console.log(food_url);
+		Linking.canOpenURL(food_url)
+			.then((supported) => {
+				if (!supported) {
+				console.log("Can't handle url: " + food_url);
+				} else {
+					return Linking.openURL(food_url);
+				}
+			})
+			.catch((err) => console.error('An error occurred', err));
 	}
 
 	render() {
@@ -235,7 +265,7 @@ class HomeScreen extends React.Component {
 											<Icon2 name="bread-slice" color="#53452d" size={20} style={{paddingHorizontal: 5}}/>
 											<Icon2 name="blender" color="#53452d" size={20} style={{paddingHorizontal: 5}}/>
 											<Icon2 name="cheese" color="#53452d" size={20} style={{paddingHorizontal: 5}}/>
-											<Text style={{color: "#53452d", fontSize: 15, fontWeight: 'bold', paddingTop: 5, paddingHorizontal: 5}} onPress={() => console.log('Open up a screen with information...')}>...read more</Text>
+											<Text style={{color: "#53452d", fontSize: 15, fontWeight: 'bold', paddingTop: 5, paddingHorizontal: 5}} onPress={() => this.openUrl()}>...read more</Text>
 										</View>
 										<Text style={{color: "#53452d", fontSize: 15, fontWeight: 'bold', paddingBottom: 2}}>Ingredients:</Text>
 										<Text style={{paddingBottom: 10}}>{text}</Text>
@@ -429,7 +459,7 @@ const styles = StyleSheet.create({
 	  },
 	prodinfoMid: {
 		flex: 0.65,
-		justifyContent: 'space-between',
+		// justifyContent: 'space-between',
 		backgroundColor: '#e8e4da',
 		borderTopWidth: 3,
 		borderTopColor:'#c4c4c4'
