@@ -297,6 +297,7 @@ class HomeScreen extends React.Component {
 											<Text style={styles.price}>{price}</Text>
 											<Text style={styles.allergy}>{allergy}</Text>
 										</View>
+										<View style={styles.hr} />
 										<View style={styles.img_container}>
 											{/* <Image style={styles.img} source={{uri: this.state.img_url}}/> */}
 											<Image style={{width: this.state.img_width, height: this.state.img_height}} source={{uri: this.state.img_url}}/>
@@ -526,7 +527,8 @@ const styles = StyleSheet.create({
 	},
 	img_container: {
 		justifyContent: 'center',
-		alignItems: 'center'
+		alignItems: 'center',
+		backgroundColor: '#ffffff'
 	},
 	img: {
 		justifyContent: 'center',
